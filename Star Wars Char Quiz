@@ -68,6 +68,98 @@ def main():
         character_scores["Darth Vader"] += 1
         character_scores["Boba Fett"] += 1
 
+    print("\nQuestion 4: What is your ideal role in a team?")
+    print("a) Leader")
+    print("b) Strategist")
+    print("c) Loyal companion")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Princess Leia"] += 1
+        character_scores["Darth Vader"] += 1
+    elif answer == "b":
+        character_scores["Obi-Wan Kenobi"] += 1
+        character_scores["Yoda"] += 1
+        character_scores["Emperor Palpatine"] += 1
+    elif answer == "c":
+        character_scores["Han Solo"] += 1
+        character_scores["Chewbacca"] += 1
+        character_scores["R2-D2"] += 1
+        character_scores["C-3PO"] += 1
+
+    print("\nQuestion 5: How do you handle stress?")
+    print("a) Meditation or calm reflection")
+    print("b) Taking action and solving the problem")
+    print("c) Delegating tasks to others")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+    elif answer == "b":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Han Solo"] += 1
+        character_scores["Princess Leia"] += 1
+        character_scores["Boba Fett"] += 1
+    elif answer == "c":
+        character_scores["Darth Vader"] += 1
+        character_scores["Emperor Palpatine"] += 1
+        character_scores["C-3PO"] += 1
+
+ print("\nQuestion 6: What kind of environment do you thrive in?")
+    print("a) A calm, peaceful setting")
+    print("b) An active, bustling city")
+    print("c) A place with constant challenges")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+        character_scores["Luke Skywalker"] += 1
+    elif answer == "b":
+        character_scores["Han Solo"] += 1
+        character_scores["Princess Leia"] += 1
+        character_scores["R2-D2"] += 1
+        character_scores["C-3PO"] += 1
+    elif answer == "c":
+        character_scores["Darth Vader"] += 1
+        character_scores["Emperor Palpatine"] += 1
+        character_scores["Boba Fett"] += 1
+
+    print("\nQuestion 7: How do you prefer to travel?")
+    print("a) By starship")
+    print("b) On foot")
+    print("c) By speeder")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Han Solo"] += 1
+        character_scores["Chewbacca"] += 1
+        character_scores["Luke Skywalker"] += 1
+    elif answer == "b":
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+        character_scores["R2-D2"] += 1
+    elif answer == "c":
+        character_scores["Princess Leia"] += 1
+        character_scores["Darth Vader"] += 1
+        character_scores["Boba Fett"] += 1
+
+    print("\nQuestion 8: What is your greatest strength?")
+    print("a) Wisdom")
+    print("b) Bravery")
+    print("c) Intelligence")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+    elif answer == "b":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Han Solo"] += 1
+        character_scores["Princess Leia"] += 1
+        character_scores["Chewbacca"] += 1
+    elif answer == "c":
+        character_scores["R2-D2"] += 1
+        character_scores["C-3PO"] += 1
+        character_scores["Emperor Palpatine"] += 1
+
     #Highest score
     max_score = max(character_scores.values())
     top_characters = [char for char, score in character_scores.items() if score == max_score]
