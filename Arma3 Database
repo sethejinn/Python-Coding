@@ -1,0 +1,122 @@
+import sqlite3
+
+#Connection to the database
+conn = sqlite3.connect('arma3_clan.db')
+
+#Create a cursor
+cursor = conn.cursor()
+
+#Players table
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    region_id INTEGER,
+    email TEXT UNIQUE,
+    password TEXT NOT NULL,
+    FOREIGN KEY(region_id) REFERENCES regions(id)
+)
+''')
+
+#Stats
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER,
+    games_played INTEGER,
+    games_won INTEGER,
+    kill_death_ratio REAL,
+    FOREIGN KEY(player_id) REFERENCES players(id)
+)
+''')
+
+#Mods
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS mods (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    version TEXT NOT NULL,
+    description TEXT
+)
+''')
+
+#Regions
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS regions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    timezone TEXT NOT NULL
+)
+''')
+
+# Commit the changes
+conn.commit()
+conn.close()
+
+#Functions
+def add_player(name, region_id, email, password):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO players (name, region_id, email, password) VALUES (?, ?, ?, ?)', (name, region_id, email, password))
+    conn.commit()
+    conn.close()
+
+def add_stat(player_id, games_played, games_won, kill_death_ratio):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO stats (player_id, games_played, games_won, kill_death_ratio) VALUES (?, ?, ?, ?)', (player_id, games_played, games_won, kill_death_ratio))
+    conn.commit()
+    conn.close()
+
+def add_mod(name, version, description):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO mods (name, version, description) VALUES (?, ?, ?)', (name, version, description))
+    conn.commit()
+    conn.close()
+
+def add_region(name, timezone):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO regions (name, timezone) VALUES (?, ?)', (name, timezone))
+    conn.commit()
+    conn.close()
+
+def get_player_stats(player_id):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM stats WHERE player_id = ?', (player_id,))
+    stats = cursor.fetchall()
+    conn.close()
+    return stats
+
+#Data validation
+def is_valid_email(email):
+    import re
+    return re.match(r'^[^@]+@[^@]+\.[^@]+$', email) is not None
+
+def is_valid_player(name, email, password):
+    return name and is_valid_email(email) and password
+
+def is_valid_stat(games_played, games_won, kill_death_ratio):
+    return isinstance(games_played, int) and isinstance(games_won, int) and isinstance(kill_death_ratio, float)
+
+#Retrieve player info
+def get_player_info(player_id):
+    conn = sqlite3.connect('arma3_clan.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+    SELECT players.id, players.name, players.email, regions.name AS region_name, stats.games_played, stats.games_won, stats.kill_death_ratio
+    FROM players
+    LEFT JOIN regions ON players.region_id = regions.id
+    LEFT JOIN stats ON players.id = stats.player_id
+    WHERE players.id = ?
+    ''', (player_id,))
+    player_info = cursor.fetchone()
+    conn.close()
+    return player_info
+
+#Password Hashing
+import hashlib
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
