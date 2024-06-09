@@ -1,0 +1,80 @@
+def main():
+    print("Welcome to the Star Wars Character Quiz!")
+    print("Answer the following questions to find out which Star Wars character you are.")
+
+    #Dictionary
+    character_scores = {
+        "Luke Skywalker": 0,
+        "Princess Leia": 0,
+        "Han Solo": 0,
+        "Darth Vader": 0,
+        "Yoda": 0,
+        "Obi-Wan Kenobi": 0,
+        "Chewbacca": 0,
+        "R2-D2": 0,
+        "C-3PO": 0,
+        "Boba Fett": 0,
+        "Emperor Palpatine": 0
+    }
+
+    #Questions and score
+    print("\nQuestion 1: What is your preferred weapon?")
+    print("a) Lightsaber")
+    print("b) Blaster")
+    answer = input("Your choice (a/b): ").lower()
+    if answer == "a":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+    elif answer == "b":
+        character_scores["Princess Leia"] += 1
+        character_scores["Han Solo"] += 1
+        character_scores["Darth Vader"] += 1
+
+    print("\nQuestion 2: What motivates you?")
+    print("a) Seeking adventure")
+    print("b) Fighting for justice")
+    print("c) Gaining power")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Han Solo"] += 1
+        character_scores["Chewbacca"] += 1
+        character_scores["R2-D2"] += 1
+    elif answer == "b":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Princess Leia"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+        character_scores["C-3PO"] += 1
+    elif answer == "c":
+        character_scores["Darth Vader"] += 1
+        character_scores["Emperor Palpatine"] += 1
+        character_scores["Boba Fett"] += 1
+
+    print("\nQuestion 3: What is your approach to problem-solving?")
+    print("a) Use the Force")
+    print("b) Rely on technology")
+    print("c) Trust your instincts")
+    answer = input("Your choice (a/b/c): ").lower()
+    if answer == "a":
+        character_scores["Luke Skywalker"] += 1
+        character_scores["Yoda"] += 1
+        character_scores["Obi-Wan Kenobi"] += 1
+    elif answer == "b":
+        character_scores["R2-D2"] += 1
+        character_scores["C-3PO"] += 1
+    elif answer == "c":
+        character_scores["Han Solo"] += 1
+        character_scores["Chewbacca"] += 1
+        character_scores["Darth Vader"] += 1
+        character_scores["Boba Fett"] += 1
+
+    #Highest score
+    max_score = max(character_scores.values())
+    top_characters = [char for char, score in character_scores.items() if score == max_score]
+
+    print("\nYou are most like:")
+    for character in top_characters:
+        print("-", character)
+
+if __name__ == "__main__":
+    main()
