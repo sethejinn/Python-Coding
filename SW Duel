@@ -1,5 +1,4 @@
-import random
-import os
+#SW Duel
 
 characters = [
     "Luke Skywalker",
@@ -59,18 +58,18 @@ weapons = [
 
 body_parts = ["head", "arms", "legs", "torso"]
 
-mounts = [
-    "Speeder Bike",
-    "X-wing Starfighter",
-    "TIE Fighter",
-    "AT-AT Walker",
-    "Millennium Falcon",
-    "Slave I",
-    "Imperial Speeder",
-    "AAT Battle Tank",
-    "Sandcrawler",
-    "Bantha"
-]
+mounts = {
+    "Speeder Bike": 1.2,
+    "X-wing Starfighter": 1.5,
+    "TIE Fighter": 1.5,
+    "AT-AT Walker": 2,
+    "Millennium Falcon": 2.5,
+    "Slave I": 2.5,
+    "Imperial Speeder": 1.2,
+    "AAT Battle Tank": 2,
+    "Sandcrawler": 1.8,
+    "Bantha": 1.7
+}
 
 def select_weapon():
     return random.choice(weapons)
@@ -79,9 +78,9 @@ def select_body_part():
     return random.choice(body_parts)
 
 def select_mount():
-    return random.choice(mounts)
+    return random.choice(list(mounts.keys()))
 
-def calculate_damage(weapon, body_part):
+def calculate_damage(weapon, body_part, mount_modifier):
     base_damage = {
         "lightsaber": 10,
         "blaster": 7,
@@ -105,7 +104,7 @@ def calculate_damage(weapon, body_part):
         "legs": 1,
         "torso": 1.5
     }
-    return base_damage[weapon] * part_multiplier[body_part]
+    return base_damage[weapon] * part_multiplier[body_part] * mount_modifier
 
 def star_wars_battle():
     print("Welcome to the Star Wars Battle Game!")
@@ -148,15 +147,17 @@ def star_wars_battle():
         opponent_defend_part = select_body_part()
         print(f"{opponent} attacks your {opponent_attack_part} and defends their {opponent_defend_part}.")
 
+        mount_modifier = mounts[player_mount] if random.random() < 0.5 else 1  # Se decide aleatoriamente si la montura influye en este turno
         if attack_part != opponent_defend_part:
-            damage = calculate_damage(player_weapon, attack_part)
+            damage = calculate_damage(player_weapon, attack_part, mount_modifier)
             opponent_health -= damage
             print(f"You hit {opponent}'s {attack_part} and deal {damage} damage!")
         else:
             print(f"{opponent} defended their {attack_part}! No damage dealt.")
 
+        mount_modifier = mounts[opponent_mount] if random.random() < 0.5 else 1  # Se decide aleatoriamente si la montura influye en este turno
         if opponent_attack_part != defend_part:
-            damage = calculate_damage(opponent_weapon, opponent_attack_part)
+            damage = calculate_damage(opponent_weapon, opponent_attack_part, mount_modifier)
             player_health -= damage
             print(f"{opponent} hits your {opponent_attack_part} and deals {damage} damage!")
         else:
