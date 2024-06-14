@@ -17,7 +17,6 @@ def main():
         "Emperor Palpatine": 0
     }
 
-    #Questions and score
     print("\nQuestion 1: What is your preferred weapon?")
     print("a) Lightsaber")
     print("b) Blaster")
