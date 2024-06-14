@@ -74,7 +74,6 @@ def star_wars_battle():
     opponent_health = 100
 
     while player_health > 0 and opponent_health > 0:
-        # Player's turn
         print("\nYour turn!")
         print("Choose a part of the body to attack:")
         for i, part in enumerate(body_parts):
@@ -86,13 +85,11 @@ def star_wars_battle():
             print(f"{i + 1}. {part}")
         defend_part = body_parts[int(input("Enter the number of the body part to defend: ")) - 1]
 
-        # Opponent's turn
         print("\nOpponent's turn!")
         opponent_attack_part = select_body_part()
         opponent_defend_part = select_body_part()
         print(f"{opponent} attacks your {opponent_attack_part} and defends their {opponent_defend_part}.")
 
-        # Calculate damage
         mount_modifier = mounts[player_mount] if random.random() < 0.5 else 1
         if attack_part != opponent_defend_part:
             damage = calculate_damage(player_weapon, attack_part, mount_modifier)
@@ -109,11 +106,9 @@ def star_wars_battle():
         else:
             print(f"You defended your {opponent_attack_part}! No damage dealt.")
 
-        # Display health
         print(f"\n{player_name}'s health: {player_health}")
         print(f"{opponent}'s health: {opponent_health}")
 
-    # Determine winner
     if player_health > 0:
         print(f"\nCongratulations, {player_name}! You have defeated {opponent}!")
     else:
