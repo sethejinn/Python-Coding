@@ -186,7 +186,7 @@ def star_wars_battle():
         if player_reputation >= 2:  # If player's reputation is high enough
             print("The audience rewards you with a better weapon!")
             time.sleep(1)
-            player_weapon = "Modified " + player_weapon  # Give the player a better weapon
+            player_weapon = "Modified " + player_weapon
     else:
         print(f"\n{player_name}, you have been defeated by {opponent}.")
 
@@ -196,7 +196,7 @@ def star_wars_battle():
         print(f"\nThe audience throws a {thrown_weapon} towards the battle!")
         if player_health > 0:
             print(f"{player_name}, you caught the {thrown_weapon}!")
-            player_weapon = thrown_weapon  # Player gets the thrown weapon
+            player_weapon = thrown_weapon
 
     print(f"\n{player_name}'s reputation: {player_reputation}")
     print(f"{opponent}'s reputation: {opponent_reputation}")
