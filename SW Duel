@@ -201,8 +201,7 @@ def export_scores():
     filename = "star_wars_scores.txt"
     if os.path.exists(filename):
         with open(filename, "r") as file:
-            content = file.read
- content = file.read()
+            content = file.read()
         with open("exported_scores.txt", "w") as file:
             file.write(content)
         print("Scores exported successfully!")
