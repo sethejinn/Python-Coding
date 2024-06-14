@@ -131,7 +131,7 @@ def star_wars_battle():
     opponent_health = 100
 
     while player_health > 0 and opponent_health > 0:
-        # Turno del jugador
+        # Player's turn
         print("\nYour turn!")
         print("Choose a part of the body to attack:")
         for i, part in enumerate(body_parts):
@@ -143,12 +143,14 @@ def star_wars_battle():
             print(f"{i + 1}. {part}")
         defend_part = body_parts[int(input("Enter the number of the body part to defend: ")) - 1]
 
+        # Opponent's turn
         print("\nOpponent's turn!")
         opponent_attack_part = select_body_part()
         opponent_defend_part = select_body_part()
         print(f"{opponent} attacks your {opponent_attack_part} and defends their {opponent_defend_part}.")
 
-        mount_modifier = mounts[player_mount] if random.random() < 0.5 else 1  # Se decide aleatoriamente si la montura influye en este turno
+        # Calculate damage
+        mount_modifier = mounts[player_mount] if random.random() < 0.5 else 1
         if attack_part != opponent_defend_part:
             damage = calculate_damage(player_weapon, attack_part, mount_modifier)
             opponent_health -= damage
@@ -156,7 +158,7 @@ def star_wars_battle():
         else:
             print(f"{opponent} defended their {attack_part}! No damage dealt.")
 
-        mount_modifier = mounts[opponent_mount] if random.random() < 0.5 else 1  # Se decide aleatoriamente si la montura influye en este turno
+        mount_modifier = mounts[opponent_mount] if random.random() < 0.5 else 1
         if opponent_attack_part != defend_part:
             damage = calculate_damage(opponent_weapon, opponent_attack_part, mount_modifier)
             player_health -= damage
@@ -164,9 +166,11 @@ def star_wars_battle():
         else:
             print(f"You defended your {opponent_attack_part}! No damage dealt.")
 
+        # Display health
         print(f"\n{player_name}'s health: {player_health}")
         print(f"{opponent}'s health: {opponent_health}")
 
+    # Determine winner
     if player_health > 0:
         print(f"\nCongratulations, {player_name}! You have defeated {opponent}!")
         save_score(player_name)
@@ -197,7 +201,8 @@ def export_scores():
     filename = "star_wars_scores.txt"
     if os.path.exists(filename):
         with open(filename, "r") as file:
-            content = file.read()
+            content = file.read
+ content = file.read()
         with open("exported_scores.txt", "w") as file:
             file.write(content)
         print("Scores exported successfully!")
@@ -214,4 +219,3 @@ def import_scores():
         print("Scores imported successfully!")
     else:
         print("No exported scores found to import.")
-
