@@ -207,3 +207,9 @@ def import_scores():
     filename = "star_wars_scores.txt"
     if os.path.exists("exported_scores.txt"):
         with open("exported_scores.txt
+            content = file.read()
+        with open(filename, "w") as file:
+            file.write(content)
+        print("Scores imported successfully!")
+    else:
+        print("No exported scores found to import.")
