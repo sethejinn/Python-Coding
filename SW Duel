@@ -1,0 +1,208 @@
+import random
+import os
+
+characters = [
+    "Luke Skywalker",
+    "Han Solo",
+    "Chewbacca",
+    "Princess Leia",
+    "Darth Vader",
+    "Obi-Wan Kenobi",
+    "R2-D2",
+    "C-3PO",
+    "Yoda",
+    "Emperor Palpatine",
+    "Lando Calrissian",
+    "Boba Fett",
+    "Padmé Amidala",
+    "Anakin Skywalker",
+    "Mace Windu",
+    "Qui-Gon Jinn",
+    "Rey",
+    "Finn",
+    "Kylo Ren",
+    "Poe Dameron",
+    "Darth Revan",
+    "Bastila Shan",
+    "Canderous Ordo",
+    "HK-47",
+    "Carth Onasi",
+    "Darth Malak",
+    "Darth Nihilus",
+    "Darth Sion",
+    "Atton Rand",
+    "Bao-Dur",
+    "Mira",
+    "Scorch",
+    "Sev",
+    "Boss",
+    "Fixer"
+]
+
+weapons = [
+    "lightsaber",
+    "blaster",
+    "thermal detonator",
+    "vibroblade",
+    "electrostaff",
+    "DL-44 heavy blaster pistol",
+    "Bowcaster",
+    "DC-15 blaster rifle",
+    "E-11 blaster rifle",
+    "T-21 light repeating blaster",
+    "EE-3 carbine rifle",
+    "A280 blaster rifle",
+    "DLT-19 heavy blaster rifle",
+    "DL-18 blaster pistol",
+    "Westar-34 blaster pistol"
+]
+
+body_parts = ["head", "arms", "legs", "torso"]
+
+mounts = [
+    "Speeder Bike",
+    "X-wing Starfighter",
+    "TIE Fighter",
+    "AT-AT Walker",
+    "Millennium Falcon",
+    "Slave I",
+    "Imperial Speeder",
+    "AAT Battle Tank",
+    "Sandcrawler",
+    "Bantha"
+]
+
+def select_weapon():
+    return random.choice(weapons)
+
+def select_body_part():
+    return random.choice(body_parts)
+
+def select_mount():
+    return random.choice(mounts)
+
+def calculate_damage(weapon, body_part):
+    base_damage = {
+        "lightsaber": 10,
+        "blaster": 7,
+        "thermal detonator": 15,
+        "vibroblade": 8,
+        "electrostaff": 6,
+        "DL-44 heavy blaster pistol": 9,
+        "Bowcaster": 12,
+        "DC-15 blaster rifle": 8,
+        "E-11 blaster rifle": 7,
+        "T-21 light repeating blaster": 10,
+        "EE-3 carbine rifle": 8,
+        "A280 blaster rifle": 7,
+        "DLT-19 heavy blaster rifle": 11,
+        "DL-18 blaster pistol": 6,
+        "Westar-34 blaster pistol": 7
+    }
+    part_multiplier = {
+        "head": 2,
+        "arms": 1,
+        "legs": 1,
+        "torso": 1.5
+    }
+    return base_damage[weapon] * part_multiplier[body_part]
+
+def star_wars_battle():
+    print("Welcome to the Star Wars Battle Game!")
+    player_name = input("Enter your name: ")
+
+    print("\nChoose your opponent:")
+    for i, character in enumerate(characters):
+        print(f"{i + 1}. {character}")
+    opponent_index = int(input("Enter the number of your opponent: ")) - 1
+    opponent = characters[opponent_index]
+
+    player_weapon = select_weapon()
+    opponent_weapon = select_weapon()
+    print(f"\n{player_name}, your weapon is a {player_weapon}.")
+    print(f"{opponent}'s weapon is a {opponent_weapon}.")
+
+    player_mount = select_mount()
+    opponent_mount = select_mount()
+    print(f"\n{player_name}, your mount is a {player_mount}.")
+    print(f"{opponent}'s mount is a {opponent_mount}.")
+
+    player_health = 100
+    opponent_health = 100
+
+    while player_health > 0 and opponent_health > 0:
+        # Turno del jugador
+        print("\nYour turn!")
+        print("Choose a part of the body to attack:")
+        for i, part in enumerate(body_parts):
+            print(f"{i + 1}. {part}")
+        attack_part = body_parts[int(input("Enter the number of the body part to attack: ")) - 1]
+
+        print("Choose a part of the body to defend:")
+        for i, part in enumerate(body_parts):
+            print(f"{i + 1}. {part}")
+        defend_part = body_parts[int(input("Enter the number of the body part to defend: ")) - 1]
+
+        print("\nOpponent's turn!")
+        opponent_attack_part = select_body_part()
+        opponent_defend_part = select_body_part()
+        print(f"{opponent} attacks your {opponent_attack_part} and defends their {opponent_defend_part}.")
+
+        if attack_part != opponent_defend_part:
+            damage = calculate_damage(player_weapon, attack_part)
+            opponent_health -= damage
+            print(f"You hit {opponent}'s {attack_part} and deal {damage} damage!")
+        else:
+            print(f"{opponent} defended their {attack_part}! No damage dealt.")
+
+        if opponent_attack_part != defend_part:
+            damage = calculate_damage(opponent_weapon, opponent_attack_part)
+            player_health -= damage
+            print(f"{opponent} hits your {opponent_attack_part} and deals {damage} damage!")
+        else:
+            print(f"You defended your {opponent_attack_part}! No damage dealt.")
+
+        print(f"\n{player_name}'s health: {player_health}")
+        print(f"{opponent}'s health: {opponent_health}")
+
+    if player_health > 0:
+        print(f"\nCongratulations, {player_name}! You have defeated {opponent}!")
+        save_score(player_name)
+    else:
+        print(f"\n{player_name}, you have been defeated by {opponent}.")
+
+def save_score(player_name):
+    filename = "star_wars_scores.txt"
+    if not os.path.exists(filename):
+        with open(filename, "w") as file:
+            file.write(f"{player_name}: 1\n")
+    else:
+        with open(filename, "r") as file:
+            lines = file.readlines()
+            found = False
+            for i, line in enumerate(lines):
+                if line.startswith(player_name):
+                    found = True
+                    score = int(line.split(":")[1].strip()) + 1
+                    lines[i] = f"{player_name}: {score}\n"
+                    break
+            if not found:
+                lines.append(f"{player_name}: 1\n")
+        with open(filename, "w") as file:
+            file.writelines(lines)
+
+def export_scores():
+    filename = "star_wars_scores.txt"
+    if os.path.exists(filename):
+        with open(filename, "r") as file:
+            content = file.read()
+        with open("exported_scores.txt", "w") as file:
+            file.write(content)
+        print("Scores exported successfully!")
+    else:
+        print("No scores found to export.")
+
+def import_scores():
+    filename = "star_wars_scores.txt"
+    if os.path.exists("exported_scores.txt"):
+        with open("exported_scores.txt
