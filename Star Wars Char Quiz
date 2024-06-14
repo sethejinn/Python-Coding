@@ -2,7 +2,6 @@ def main():
     print("Welcome to the Star Wars Character Quiz!")
     print("Answer the following questions to find out which Star Wars character you are.")
 
-    #Dictionary
     character_scores = {
         "Luke Skywalker": 0,
         "Princess Leia": 0,
