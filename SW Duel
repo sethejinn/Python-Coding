@@ -1,74 +1,29 @@
 import random
-import os
 
 characters = [
-    "Luke Skywalker",
-    "Han Solo",
-    "Chewbacca",
-    "Princess Leia",
-    "Darth Vader",
-    "Obi-Wan Kenobi",
-    "R2-D2",
-    "C-3PO",
-    "Yoda",
-    "Emperor Palpatine",
-    "Lando Calrissian",
-    "Boba Fett",
-    "Padmé Amidala",
-    "Anakin Skywalker",
-    "Mace Windu",
-    "Qui-Gon Jinn",
-    "Rey",
-    "Finn",
-    "Kylo Ren",
-    "Poe Dameron",
-    "Darth Revan",
-    "Bastila Shan",
-    "Canderous Ordo",
-    "HK-47",
-    "Carth Onasi",
-    "Darth Malak",
-    "Darth Nihilus",
-    "Darth Sion",
-    "Atton Rand",
-    "Bao-Dur",
-    "Mira",
-    "Scorch",
-    "Sev",
-    "Boss",
-    "Fixer"
+    "Luke Skywalker", "Han Solo", "Chewbacca", "Princess Leia", "Darth Vader", 
+    "Obi-Wan Kenobi", "R2-D2", "C-3PO", "Yoda", "Emperor Palpatine", 
+    "Lando Calrissian", "Boba Fett", "Padmé Amidala", "Anakin Skywalker", 
+    "Mace Windu", "Qui-Gon Jinn", "Rey", "Finn", "Kylo Ren", "Poe Dameron", 
+    "Darth Revan", "Bastila Shan", "Canderous Ordo", "HK-47", "Carth Onasi", 
+    "Darth Malak", "Darth Nihilus", "Darth Sion", "Atton Rand", "Bao-Dur", 
+    "Mira", "Scorch", "Sev", "Boss", "Fixer"
 ]
 
 weapons = [
-    "lightsaber",
-    "blaster",
-    "thermal detonator",
-    "vibroblade",
-    "electrostaff",
-    "DL-44 heavy blaster pistol",
-    "Bowcaster",
-    "DC-15 blaster rifle",
-    "E-11 blaster rifle",
-    "T-21 light repeating blaster",
-    "EE-3 carbine rifle",
-    "A280 blaster rifle",
-    "DLT-19 heavy blaster rifle",
-    "DL-18 blaster pistol",
+    "lightsaber", "blaster", "thermal detonator", "vibroblade", "electrostaff", 
+    "DL-44 heavy blaster pistol", "Bowcaster", "DC-15 blaster rifle", 
+    "E-11 blaster rifle", "T-21 light repeating blaster", "EE-3 carbine rifle", 
+    "A280 blaster rifle", "DLT-19 heavy blaster rifle", "DL-18 blaster pistol", 
     "Westar-34 blaster pistol"
 ]
 
 body_parts = ["head", "arms", "legs", "torso"]
 
 mounts = {
-    "Speeder Bike": 1.2,
-    "X-wing Starfighter": 1.5,
-    "TIE Fighter": 1.5,
-    "AT-AT Walker": 2,
-    "Millennium Falcon": 2.5,
-    "Slave I": 2.5,
-    "Imperial Speeder": 1.2,
-    "AAT Battle Tank": 2,
-    "Sandcrawler": 1.8,
+    "Speeder Bike": 1.2, "X-wing Starfighter": 1.5, "TIE Fighter": 1.5, 
+    "AT-AT Walker": 2, "Millennium Falcon": 2.5, "Slave I": 2.5, 
+    "Imperial Speeder": 1.2, "AAT Battle Tank": 2, "Sandcrawler": 1.8, 
     "Bantha": 1.7
 }
 
@@ -83,27 +38,15 @@ def select_mount():
 
 def calculate_damage(weapon, body_part, mount_modifier):
     base_damage = {
-        "lightsaber": 10,
-        "blaster": 7,
-        "thermal detonator": 15,
-        "vibroblade": 8,
-        "electrostaff": 6,
-        "DL-44 heavy blaster pistol": 9,
-        "Bowcaster": 12,
-        "DC-15 blaster rifle": 8,
-        "E-11 blaster rifle": 7,
-        "T-21 light repeating blaster": 10,
-        "EE-3 carbine rifle": 8,
-        "A280 blaster rifle": 7,
-        "DLT-19 heavy blaster rifle": 11,
-        "DL-18 blaster pistol": 6,
-        "Westar-34 blaster pistol": 7
+        "lightsaber": 10, "blaster": 7, "thermal detonator": 15, 
+        "vibroblade": 8, "electrostaff": 6, "DL-44 heavy blaster pistol": 9, 
+        "Bowcaster": 12, "DC-15 blaster rifle": 8, "E-11 blaster rifle": 7, 
+        "T-21 light repeating blaster": 10, "EE-3 carbine rifle": 8, 
+        "A280 blaster rifle": 7, "DLT-19 heavy blaster rifle": 11, 
+        "DL-18 blaster pistol": 6, "Westar-34 blaster pistol": 7
     }
     part_multiplier = {
-        "head": 2,
-        "arms": 1,
-        "legs": 1,
-        "torso": 1.5
+        "head": 2, "arms": 1, "legs": 1, "torso": 1.5
     }
     return base_damage[weapon] * part_multiplier[body_part] * mount_modifier
 
@@ -173,48 +116,7 @@ def star_wars_battle():
     # Determine winner
     if player_health > 0:
         print(f"\nCongratulations, {player_name}! You have defeated {opponent}!")
-        save_score(player_name)
     else:
         print(f"\n{player_name}, you have been defeated by {opponent}.")
 
-def save_score(player_name):
-    filename = "star_wars_scores.txt"
-    if not os.path.exists(filename):
-        with open(filename, "w") as file:
-            file.write(f"{player_name}: 1\n")
-    else:
-        with open(filename, "r") as file:
-            lines = file.readlines()
-            found = False
-            for i, line in enumerate(lines):
-                if line.startswith(player_name):
-                    found = True
-                    score = int(line.split(":")[1].strip()) + 1
-                    lines[i] = f"{player_name}: {score}\n"
-                    break
-            if not found:
-                lines.append(f"{player_name}: 1\n")
-        with open(filename, "w") as file:
-            file.writelines(lines)
-
-def export_scores():
-    filename = "star_wars_scores.txt"
-    if os.path.exists(filename):
-        with open(filename, "r") as file:
-            content = file.read()
-        with open("exported_scores.txt", "w") as file:
-            file.write(content)
-        print("Scores exported successfully!")
-    else:
-        print("No scores found to export.")
-
-def import_scores():
-    filename = "star_wars_scores.txt"
-    if os.path.exists("exported_scores.txt"):
-        with open("exported_scores.txt") as file:
-            content = file.read()
-        with open(filename, "w") as file:
-            file.write(content)
-        print("Scores imported successfully!")
-    else:
-        print("No exported scores found to import.")
+star_wars_battle()
