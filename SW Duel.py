@@ -1,0 +1,221 @@
+import random
+import time
+
+characters = [
+    "Luke Skywalker",
+    "Han Solo",
+    "Chewbacca",
+    "Princess Leia",
+    "Darth Vader",
+    "Obi-Wan Kenobi",
+    "R2-D2",
+    "C-3PO",
+    "Yoda",
+    "Emperor Palpatine",
+    "Lando Calrissian",
+    "Boba Fett",
+    "Padmé Amidala",
+    "Anakin Skywalker",
+    "Mace Windu",
+    "Qui-Gon Jinn",
+    "Rey",
+    "Finn",
+    "Kylo Ren",
+    "Poe Dameron",
+    "Darth Revan",
+    "Bastila Shan",
+    "Canderous Ordo",
+    "HK-47",
+    "Carth Onasi",
+    "Darth Malak",
+    "Darth Nihilus",
+    "Darth Sion",
+    "Atton Rand",
+    "Bao-Dur",
+    "Mira",
+    "Scorch",
+    "Sev",
+    "Boss",
+    "Fixer"
+]
+
+weapons = [
+    "lightsaber",
+    "blaster",
+    "thermal detonator",
+    "vibroblade",
+    "electrostaff",
+    "DL-44 heavy blaster pistol",
+    "Bowcaster",
+    "DC-15 blaster rifle",
+    "E-11 blaster rifle",
+    "T-21 light repeating blaster",
+    "EE-3 carbine rifle",
+    "A280 blaster rifle",
+    "DLT-19 heavy blaster rifle",
+    "DL-18 blaster pistol",
+    "Westar-34 blaster pistol"
+]
+
+body_parts = ["head", "arms", "legs", "torso"]
+
+mounts = {
+    "Speeder Bike": 1.2,
+    "X-wing Starfighter": 1.5,
+    "TIE Fighter": 1.5,
+    "AT-AT Walker": 2,
+    "Millennium Falcon": 2.5,
+    "Slave I": 2.5,
+    "Imperial Speeder": 1.2,
+    "AAT Battle Tank": 2,
+    "Sandcrawler": 1.8,
+    "Bantha": 1.7
+}
+
+def select_weapon():
+    return random.choice(weapons)
+
+def select_body_part():
+    return random.choice(body_parts)
+
+def select_mount():
+    return random.choice(list(mounts.keys()))
+
+def calculate_damage(weapon, body_part, mount_modifier):
+    base_damage = {
+        "lightsaber": 10,
+        "blaster": 7,
+        "thermal detonator": 15,
+        "vibroblade": 8,
+        "electrostaff": 6,
+        "DL-44 heavy blaster pistol": 9,
+        "Bowcaster": 12,
+        "DC-15 blaster rifle": 8,
+        "E-11 blaster rifle": 7,
+        "T-21 light repeating blaster": 10,
+        "EE-3 carbine rifle": 8,
+        "A280 blaster rifle": 7,
+        "DLT-19 heavy blaster rifle": 11,
+        "DL-18 blaster pistol": 6,
+        "Westar-34 blaster pistol": 7
+    }
+    part_multiplier = {
+        "head": 2,
+        "arms": 1,
+        "legs": 1,
+        "torso": 1.5
+    }
+    return base_damage[weapon] * part_multiplier[body_part] * mount_modifier
+
+def star_wars_battle():
+    print("Welcome to the Star Wars Battle Game!")
+    player_name = input("Enter your name: ")
+
+    print("\nChoose your opponent:")
+    for i, character in enumerate(characters):
+        print(f"{i + 1}. {character}")
+    opponent_index = int(input("Enter the number of your opponent: ")) - 1
+    opponent = characters[opponent_index]
+
+    player_weapon = select_weapon()
+    opponent_weapon = select_weapon()
+    print(f"\n{player_name}, your weapon is a {player_weapon}.")
+    print(f"{opponent}'s weapon is a {opponent_weapon}.")
+
+    player_mount = select_mount()
+    opponent_mount = select_mount()
+    print(f"\n{player_name}, your mount is a {player_mount}.")
+    print(f"{opponent}'s mount is a {opponent_mount}.")
+
+    player_health = 100
+    opponent_health = 100
+    public_meter = 0
+    player_reputation = 0
+    opponent_reputation = 0
+
+    while player_health > 0 and opponent_health > 0:
+        print("\nYour turn!")
+        print("Choose a part of the body to attack:")
+        for i, part in enumerate(body_parts):
+            print(f"{i + 1}. {part}")
+        attack_part = body_parts[int(input("Enter the number of the body part to attack: ")) - 1]
+
+        print("Choose a part of the body to defend:")
+        for i, part in enumerate(body_parts):
+            print(f"{i + 1}. {part}")
+        defend_part = body_parts[int(input("Enter the number of the body part to defend: ")) - 1]
+
+        print("\nOpponent's turn!")
+        opponent_attack_part = select_body_part()
+        opponent_defend_part = select_body_part()
+        print(f"{opponent} attacks your {opponent_attack_part} and defends their {opponent_defend_part}.")
+
+        mount_modifier = mounts[player_mount] if random.random() < 0.5 else 1
+        if attack_part != opponent_defend_part:
+            damage = calculate_damage(player_weapon, attack_part, mount_modifier)
+            opponent_health -= damage
+            print(f"You hit {opponent}'s {attack_part} and deal {damage} damage!")
+            time.sleep(1)
+            public_meter += damage * 0.1  # Increase public meter based on damage
+            if attack_part == "head":
+                player_reputation += 1  # Increase player's reputation for headshot
+        else:
+            print(f"{opponent} defended their {attack_part}! No damage dealt.")
+            time.sleep(1)
+
+        mount_modifier = mounts[opponent_mount] if random.random() < 0.5 else 1
+        if opponent_attack_part != defend_part:
+            damage = calculate_damage(opponent_weapon, opponent_attack_part, mount_modifier)
+            player_health -= damage
+            print(f"{opponent} hits your {opponent_attack_part} and deals {damage} damage!")
+            time.sleep(1)
+            public_meter += damage * 0.1  # Increase public meter based on damage
+            if opponent_attack_part == "head":
+                opponent_reputation += 1  # Increase opponent's reputation for headshot
+        else:
+            print(f"You defended your {opponent_attack_part}! No damage dealt.")
+            time.sleep(1)
+
+        print(f"\n{player_name}'s health: {player_health}")
+        print(f"{opponent}'s health: {opponent_health}")
+        time.sleep(1)
+
+    if player_health > 0:
+        print(f"\nCongratulations, {player_name}! You have defeated {opponent}!")
+        time.sleep(1)
+        if player_reputation >= 2:  # If player's reputation is high enough
+            print("The audience rewards you with a better weapon!")
+            time.sleep(1)
+            player_weapon = "Modified " + player_weapon
+    else:
+        print(f"\n{player_name}, you have been defeated by {opponent}.")
+
+    # Determine if the audience throws weapons randomly
+    if random.random() < 0.2:  # 20% chance of audience throwing weapons
+        thrown_weapon = random.choice(weapons)
+        print(f"\nThe audience throws a {thrown_weapon} towards the battle!")
+        if player_health > 0:
+            print(f"{player_name}, you caught the {thrown_weapon}!")
+            player_weapon = thrown_weapon
+
+    print(f"\n{player_name}'s reputation: {player_reputation}")
+    print(f"{opponent}'s reputation: {opponent_reputation}")
+
+star_wars_battle()
+
+def play_again():
+    while True:
+        choice = input("Do you want to play again? (yes/no): ").lower()
+        if choice in ['yes', 'no']:
+            return choice == 'yes'
+        else:
+            print("Please enter 'yes' or 'no'.")
+
+def start_game():
+    while True:
+        star_wars_battle()
+        if not play_again():
+            print("Thank you for playing!")
+            break
+
+start_game()
