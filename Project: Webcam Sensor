@@ -1,0 +1,148 @@
+import cv2
+import os
+import smtplib
+import logging
+import threading
+from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import time
+
+# Set up logging to track what's happening in the code, it's better than using print
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Path where we save the images when motion is detected
+imagesFolder = r"D:\Mis documentos\ProyectoA\Python\detectar_movimiento_webcam\imagenes"
+if not os.path.exists(imagesFolder):
+    os.makedirs(imagesFolder)
+
+# Motion detection settings
+minContourArea = 600  # We only care about large enough movements
+motionSensitivity = 25  # Sensitivity threshold for detecting changes
+
+# Email settings
+senderEmail = "email@email.com"
+userEmail = "email@email.com"
+emailPassword = "password"
+recipientEmail = "recipient@recipient.com"
+smtpServer = "smtp.gmail.com"
+smtpPort = 587
+lastEmailSent = datetime.now() - timedelta(minutes=3)  # Allows email to be sent immediately on first detection
+emailCooldownTime = 3  # Time in minutes between each email (to prevent spamming)
+
+# Webcam video source
+videoSource = 0  # Default webcam
+
+def sendEmailWithAttachment(image_path):
+    """Send an email with the captured image as an attachment."""
+    try:
+        # Get the current time to include in the email subject
+        time_str = datetime.now().strftime("%H:%M:%S")
+        messageContent = f"Motion detected at: {time_str} hours.\n\nBy https://proyectoa.com"
+        subject = f"Motion detected at {time_str}"
+
+        # Create the email message
+        message = MIMEMultipart()
+        message["From"] = senderEmail
+        message["To"] = recipientEmail
+        message["Subject"] = subject
+        message.attach(MIMEText(messageContent, "plain"))
+
+        # Attach the image to the email
+        with open(image_path, "rb") as attachment:
+            partBase = MIMEBase("application", "octet-stream")
+            partBase.set_payload(attachment.read())
+            encoders.encode_base64(partBase)
+            partBase.add_header("Content-Disposition", f"attachment; filename={os.path.basename(image_path)}")
+            message.attach(partBase)
+
+        # Send the email via SMTP server
+        with smtplib.SMTP(smtpServer, smtpPort) as server:
+            server.starttls()  # Secure the connection
+            server.login(userEmail, emailPassword)
+            server.sendmail(senderEmail, recipientEmail, message.as_string())
+
+        logging.info(f"Email sent successfully to {recipientEmail}")
+    except Exception as e:
+        logging.error(f"Error sending email: {e}")
+
+def detectMotion(firstFrame, nextFrame):
+    """Detect motion by comparing the current frame to the previous one."""
+    # Convert frames to grayscale and blur them to reduce noise
+    grayFirstFrame = cv2.cvtColor(firstFrame, cv2.COLOR_BGR2GRAY)
+    grayFirstFrame = cv2.GaussianBlur(grayFirstFrame, (21, 21), 0)
+
+    grayNextFrame = cv2.cvtColor(nextFrame, cv2.COLOR_BGR2GRAY)
+    grayNextFrame = cv2.GussianBlur(grayNextFrame, (21, 21), 0)
+
+    # Compute the difference between the two frames
+    diffImage = cv2.absdiff(grayFirstFrame, grayNextFrame)
+    _, binaryImage = cv2.threshold(diffImage, motionSensitivity, 255, cv2.THRESH_BINARY)
+    dilatedImage = cv2.dilate(binaryImage, None, iterations=2)
+
+    # Find contours in the image to detect potential movements
+    contours, _ = cv2.findContours(dilatedImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    return contours, grayNextFrame
+
+def saveAndSendEmail(contours, nextFrame, frameNum):
+    """Save the frame and send an email if necessary."""
+    global lastEmailSent
+
+    if contours:
+        # Create a filename based on the current date/time
+        currentDateTime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        imageName = f"img_{currentDateTime}_{frameNum}.png"
+        imagePath = os.path.join(imagesFolder, imageName)
+        cv2.imwrite(imagePath, nextFrame)
+
+        # Check if enough time has passed since the last email
+        timeSinceLastEmail = (datetime.now() - lastEmailSent).total_seconds() / 60
+        if timeSinceLastEmail >= emailCooldownTime:
+            lastEmailSent = datetime.now()
+            threading.Thread(target=sendEmailWithAttachment, args=(imagePath,)).start()
+            logging.info(f"Motion detected, image saved as {imageName}")
+        else:
+            remainingTime = emailCooldownTime - timeSinceLastEmail
+            logging.info(f"Motion detected, but waiting {remainingTime:.1f} minutes before sending another email.")
+
+def main():
+    """Main function to capture video and detect motion."""
+    # Start video capture
+    videoCapture = cv2.VideoCapture(videoSource)
+
+    # Get the first frame to start with
+    ret, firstFrame = videoCapture.read()
+    if not ret:
+        logging.error("Unable to read from webcam.")
+        return
+
+    frameNum = 0
+    logging.info("Starting video capture...")
+
+    while videoCapture.isOpened():
+        ret, nextFrame = videoCapture.read()
+        if not ret:
+            logging.warning("No image found from webcam input.")
+            break
+
+        frameNum += 1
+        if frameNum > 10:  # Ignore the first few frames to avoid errors
+            contours, nextFrameTransformed = detectMotion(firstFrame, nextFrame)
+            saveAndSendEmail(contours, nextFrame, frameNum)
+            firstFrame = nextFrameTransformed  # Update first frame for the next iteration
+
+        # Display the live video feed
+        cv2.imshow("Motion Detection - ProjectA", nextFrame)
+
+        # Exit if the 's' key is pressed
+        if cv2.waitKey(1) & 0xFF == ord('s'):
+            break
+
+    # Release the video capture object and close windows
+    videoCapture.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
