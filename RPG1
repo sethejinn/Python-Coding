@@ -1,0 +1,247 @@
+import random
+
+class Personaje:
+    def __init__(self, nombre, raza, vida, fuerza, destreza, inteligencia):
+        self.nombre = nombre
+        self.raza = raza
+        self.vida = vida
+        self.fuerza = fuerza
+        self.destreza = destreza
+        self.inteligencia = inteligencia
+        self.monedas = 0
+        self.inventario = []
+        self.nivel = 1
+        self.experiencia = 0
+        self.casa = 0  # Nivel de la casa (0 = no tiene casa)
+        self.armas = []
+        self.armaduras = []
+        self.puntos_de_vida = vida
+        self.defensa = 0
+        self.dano_base = 10
+        self.max_vida = vida
+
+    def subir_atributo(self, atributo):
+        if atributo == "fuerza":
+            self.fuerza += 1
+        elif atributo == "destreza":
+            self.destreza += 1
+        elif atributo == "inteligencia":
+            self.inteligencia += 1
+        print(f"{self.nombre} ha aumentado su atributo de {atributo}.")
+
+    def mostrar_atributos(self):
+        return (f"Atributos de {self.nombre}:\n"
+                f"Raza: {self.raza}\n"
+                f"Vida: {self.puntos_de_vida}/{self.max_vida}\n"
+                f"Fuerza: {self.fuerza}\n"
+                f"Destreza: {self.destreza}\n"
+                f"Inteligencia: {self.inteligencia}\n"
+                f"Nivel: {self.nivel}\n"
+                f"Monedas: {self.monedas}\n"
+                f"Casa: {self.casa}\n"
+                f"Armas: {[arma.nombre for arma in self.armas]}\n"
+                f"Armaduras: {[arma.nombre for arma in self.armaduras]}")
+
+    def ganar_experiencia(self, cantidad):
+        self.experiencia += cantidad
+        print(f"{self.nombre} ha ganado {cantidad} puntos de experiencia.")
+        if self.experiencia >= 100:
+            self.nivel_up()
+
+    def nivel_up(self):
+        self.nivel += 1
+        self.experiencia = 0
+        self.fuerza += 2
+        self.destreza += 2
+        self.inteligencia += 1
+        self.puntos_de_vida = self.max_vida
+        print(f"{self.nombre} ha subido al nivel {self.nivel}!")
+
+    def usar_arma(self, arma):
+        if arma in self.armas:
+            self.dano_base += arma.dano
+            print(f"{self.nombre} ha equipado el {arma.nombre}. Daño: {self.dano_base}")
+        else:
+            print(f"{self.nombre} no tiene el {arma.nombre} en su inventario.")
+
+    def usar_armadura(self, armadura):
+        if armadura in self.armaduras:
+            self.defensa += armadura.defensa
+            print(f"{self.nombre} ha equipado la {armadura.nombre}. Defensa: {self.defensa}")
+        else:
+            print(f"{self.nombre} no tiene la {armadura.nombre} en su inventario.")
+
+class Arma:
+    def __init__(self, nombre, dano):
+        self.nombre = nombre
+        self.dano = dano
+
+class Armadura:
+    def __init__(self, nombre, defensa):
+        self.nombre = nombre
+        self.defensa = defensa
+
+class Enemigo:
+    def __init__(self, nombre, vida, dano, nivel):
+        self.nombre = nombre
+        self.vida = vida
+        self.dano = dano
+        self.nivel = nivel
+
+    def atacar(self, personaje):
+        danio_total = max(0, self.dano - personaje.defensa)
+        personaje.puntos_de_vida -= danio_total
+        print(f"{self.nombre} ataca a {personaje.nombre} y causa {danio_total} puntos de daño.")
+
+    def esta_vivo(self):
+        return self.vida > 0
+
+    def recibir_dano(self, dano):
+        self.vida -= dano
+        print(f"{self.nombre} recibe {dano} puntos de daño.")
+
+    def morir(self):
+        print(f"{self.nombre} ha sido derrotado.")
+
+class Mision:
+    def __init__(self, nombre, descripcion, recompensa_experiencia, recompensa_monedas, objetivo):
+        self.nombre = nombre
+        self.descripcion = descripcion
+        self.recompensa_experiencia = recompensa_experiencia
+        self.recompensa_monedas = recompensa_monedas
+        self.objetivo = objetivo
+        self.completada = False
+
+    def completar(self, personaje):
+        if not self.completada:
+            print(f"Misión '{self.nombre}' completada. Recompensa: {self.recompensa_experiencia} EXP y {self.recompensa_monedas} monedas.")
+            personaje.ganar_experiencia(self.recompensa_experiencia)
+            personaje.monedas += self.recompensa_monedas
+            self.completada = True
+        else:
+            print(f"Ya has completado la misión '{self.nombre}'.")
+
+def pescar(personaje):
+    print(f"{personaje.nombre} está pescando...")
+    if random.randint(1, 10) > 3:
+        print("¡Has pescado un pez!")
+        personaje.monedas += 5
+        personaje.ganar_experiencia(10)
+    else:
+        print("No has pescado nada.")
+
+def cazar(personaje):
+    print(f"{personaje.nombre} está cazando...")
+    if random.randint(1, 10) > 4:
+        print("¡Has cazado un animal!")
+        personaje.monedas += 10
+        personaje.ganar_experiencia(20)
+    else:
+        print("No has cazado nada.")
+
+def talar(personaje):
+    print(f"{personaje.nombre} está talando árboles...")
+    if random.randint(1, 10) > 2:
+        print("¡Has talado un árbol!")
+        personaje.monedas += 3
+        personaje.ganar_experiencia(5)
+    else:
+        print("No has talado nada.")
+
+def minar(personaje):
+    print(f"{personaje.nombre} está minando...")
+    if random.randint(1, 10) > 3:
+        print("¡Has encontrado un mineral!")
+        personaje.monedas += 8
+        personaje.ganar_experiencia(15)
+    else:
+        print("No has encontrado nada.")
+
+def combate(personaje, enemigo):
+    print(f"¡Un {enemigo.nombre} ha aparecido!")
+    while enemigo.esta_vivo() and personaje.puntos_de_vida > 0:
+        print(f"{personaje.nombre} ataca a {enemigo.nombre}!")
+        dano_total = personaje.dano_base + (personaje.fuerza // 2)
+        enemigo.recibir_dano(dano_total)
+        if enemigo.esta_vivo():
+            enemigo.atacar(personaje)
+    if personaje.puntos_de_vida > 0:
+        enemigo.morir()
+        personaje.ganar_experiencia(50)
+        personaje.monedas += 30
+    else:
+        print(f"{personaje.nombre} ha sido derrotado por {enemigo.nombre}.")
+
+def mejorar_casa(personaje):
+    if personaje.monedas >= 50:
+        personaje.monedas -= 50
+        personaje.casa += 1
+        print(f"¡Tu casa ha sido mejorada! Nivel de la casa: {personaje.casa}")
+    else:
+        print("No tienes suficientes monedas para mejorar tu casa.")
+
+def tienda(personaje):
+    print("Bienvenido a la tienda.")
+    print("1. Comprar espada (30 monedas)")
+    print("2. Comprar escudo (25 monedas)")
+    print("3. Comprar armadura (40 monedas)")
+    print("4. Salir")
+    eleccion = int(input())
+    if eleccion == 1 and personaje.monedas >= 30:
+        espada = Arma("Espada", 15)
+        personaje.armas.append(espada)
+        personaje.monedas -= 30
+        print("Has comprado una espada.")
+    elif eleccion == 2 and personaje.monedas >= 25:
+        escudo = Armadura("Escudo", 10)
+        personaje.armaduras.append(escudo)
+        personaje.monedas -= 25
+        print("Has comprado un escudo.")
+    elif eleccion == 3 and personaje.monedas >= 40:
+        armadura = Armadura("Armadura pesada", 20)
+        personaje.armaduras.append(armadura)
+        personaje.monedas -= 40
+        print("Has comprado una armadura pesada.")
+    elif eleccion == 4:
+        print("Gracias por tu visita.")
+    else:
+        print("No tienes suficientes monedas.")
+
+def juego():
+    print("Bienvenido al RPG!")
+    nombre = input("Introduce el nombre de tu personaje: ")
+    personaje = Personaje(nombre, "Humano", 100, 10, 7, 6)
+
+    while True:
+        print(personaje.mostrar_atributos())
+        print("¿Qué te gustaría hacer?")
+        print("1. Pescar")
+        print("2. Cazar")
+        print("3. Talar")
+        print("4. Minar")
+        print("5. Mejorar Casa")
+        print("6. Visitar Tienda")
+        print("7. Luchar contra un enemigo")
+        print("8. Salir del juego")
+        opcion = int(input())
+
+        if opcion == 1:
+            pescar(personaje)
+        elif opcion == 2:
+            cazar(personaje)
+        elif opcion == 3:
+            talar(personaje)
+        elif opcion == 4:
+            minar(personaje)
+        elif opcion == 5:
+            mejorar_casa(personaje)
+        elif opcion == 6:
+            tienda(personaje)
+        elif opcion == 7:
+            enemigo = Enemigo("Goblin", 50, 15, 1)
+            combate(personaje, enemigo)
+        elif opcion == 8:
+            print("Gracias por jugar!")
+            break
+
+juego()
