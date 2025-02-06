@@ -1,0 +1,232 @@
+import random
+import time
+import sys
+
+class Character:
+    def __init__(self, name, faction, health, attack, defense, accuracy, intelligence, special_ability, moral_alignment):
+        self.name = name
+        self.faction = faction
+        self.health = health
+        self.attack = attack
+        self.defense = defense
+        self.accuracy = accuracy
+        self.intelligence = intelligence
+        self.special_ability = special_ability
+        self.moral_alignment = moral_alignment  # 'Good', 'Neutral', 'Evil'
+        self.inventory = []
+
+    def is_alive(self):
+        return self.health > 0
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health < 0:
+            self.health = 0
+        print(f"{self.name} recibe {damage} puntos de daño. Salud restante: {self.health}")
+        if self.health <= 0:
+            print(f"\n{self.name} ha caído en combate. La oscuridad lo consume.\n")
+
+    def attack_enemy(self, enemy):
+        if random.random() < self.accuracy:
+            damage = max(self.attack - enemy.defense, 1)
+            print(f"{self.name} ataca a {enemy.name} y causa {damage} de daño.")
+            enemy.take_damage(damage)
+        else:
+            print(f"{self.name} falló el ataque contra {enemy.name}.")
+
+    def use_special_ability(self, enemy):
+        if self.special_ability == "Aguante de la Legión":
+            print(f"{self.name} utiliza su habilidad especial: Aguante de la Legión. Recupera 15 puntos de salud.")
+            self.health += 15
+        elif self.special_ability == "Furia Inhumana":
+            print(f"{self.name} desata su furia: Furia Inhumana. Aumenta su ataque en 10 puntos.")
+            self.attack += 10
+        else:
+            print(f"{self.name} no tiene una habilidad especial activa.")
+        time.sleep(1)
+
+    def add_to_inventory(self, item):
+        self.inventory.append(item)
+        print(f"{self.name} ha recogido {item}.")
+    
+    def display_inventory(self):
+        print(f"Inventario de {self.name}: {', '.join(self.inventory) if self.inventory else 'Vacío'}")
+
+    def make_moral_decision(self):
+        if self.moral_alignment == "Good":
+            print(f"{self.name} elige tomar el camino de la compasión y la justicia.")
+        elif self.moral_alignment == "Evil":
+            print(f"{self.name} decide sucumbir a las sombras del caos y la venganza.")
+        else:
+            print(f"{self.name} toma un camino ambiguo, buscando su propio beneficio.")
+
+class Enemy:
+    def __init__(self, name, faction, health, attack, defense, accuracy, special_ability, description):
+        self.name = name
+        self.faction = faction
+        self.health = health
+        self.attack = attack
+        self.defense = defense
+        self.accuracy = accuracy
+        self.special_ability = special_ability
+        self.description = description
+
+    def is_alive(self):
+        return self.health > 0
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health < 0:
+            self.health = 0
+        print(f"{self.name} recibe {damage} puntos de daño. Salud restante: {self.health}")
+
+    def attack_player(self, player):
+        if random.random() < self.accuracy:
+            damage = max(self.attack - player.defense, 1)
+            print(f"{self.name} ataca a {player.name} y causa {damage} de daño.")
+            player.take_damage(damage)
+        else:
+            print(f"{self.name} falló el ataque contra {player.name}.")
+
+    def use_special_ability(self, player):
+        if self.special_ability == "Toxina Xenos":
+            print(f"{self.name} utiliza su habilidad especial: Toxina Xenos. El jugador recibe 10 puntos de daño adicional por veneno.")
+            player.take_damage(10)
+        elif self.special_ability == "Rugido Berserker":
+            print(f"{self.name} desata un Rugido Berserker. Aumenta su ataque en 15 puntos.")
+            self.attack += 15
+        else:
+            print(f"{self.name} no tiene una habilidad especial activa.")
+        time.sleep(1)
+
+    def print_description(self):
+        print(f"{self.name}: {self.description}")
+        time.sleep(1)
+
+class Room:
+    def __init__(self, room_type, description):
+        self.room_type = room_type
+        self.enemy = None
+        self.event = None
+        self.description = description
+
+    def set_enemy(self, enemy):
+        self.enemy = enemy
+
+    def set_event(self, event):
+        self.event = event
+
+    def trigger_event(self, player):
+        if self.event:
+            self.event.trigger(player)
+
+class Event:
+    def __init__(self, event_type):
+        self.event_type = event_type
+
+    def trigger(self, player):
+        if self.event_type == "cura":
+            heal = random.randint(10, 30)
+            player.health += heal
+            print(f"¡Encuentras un medipack! Recuperas {heal} puntos de salud.")
+        elif self.event_type == "trampa":
+            damage = random.randint(15, 40)
+            player.take_damage(damage)
+            print(f"¡Has caído en una trampa! Recibes {damage} puntos de daño.")
+        elif self.event_type == "tesoro":
+            item = random.choice(["Sable de energía", "Granada de plasma", "Munición pesada"])
+            player.add_to_inventory(item)
+            print(f"¡Has encontrado un tesoro! Obtienes {item}.")
+        time.sleep(1)
+
+def generate_dungeon():
+    rooms = []
+    num_rooms = random.randint(8, 12)
+    for _ in range(num_rooms):
+        room_type = random.choice(["combate", "evento", "tesoro", "trampa"])
+        room_description = generate_room_description()
+        room = Room(room_type, room_description)
+
+        if room_type == "combate":
+            enemy = generate_enemy()
+            room.set_enemy(enemy)
+        elif room_type == "evento":
+            event = random.choice(["cura", "trampa", "tesoro"])
+            room.set_event(Event(event))
+
+        rooms.append(room)
+    return rooms
+
+def generate_room_description():
+    descriptions = [
+        "La habitación está sombría, la humedad impregna el aire y el sonido de un eco distante resuena en las paredes.",
+        "Un resplandor rojo ilumina la estancia. El aire está cargado de tensión, como si algo monstruoso estuviera cerca.",
+        "La puerta cruje al abrirse. La habitación parece estar desmoronándose, como si algo grande hubiera sido sellado aquí.",
+        "El suelo está cubierto de polvo y escombros. Un extraño murmullo se escucha, proveniente de algún rincón oculto."
+    ]
+    return random.choice(descriptions)
+
+def generate_enemy():
+    name = random.choice(["Xenos", "Necrón", "Ork", "Tyranid"])
+    faction = random.choice(["Imperio", "Xenos", "Chaos", "Tyranids"])
+    health = random.randint(40, 100)
+    attack = random.randint(10, 20)
+    defense = random.randint(3, 10)
+    accuracy = random.uniform(0.6, 0.9)
+    special_ability = random.choice(["Toxina Xenos", "Rugido Berserker", "None"])
+    description = "Este enemigo parece tener una presencia oscura, una fuerza palpable en el aire que te rodea."
+    return Enemy(name, faction, health, attack, defense, accuracy, special_ability, description)
+
+def combat(player, enemy):
+    print(f"¡Un {enemy.name} aparece! {enemy.description}")
+    while player.is_alive() and enemy.is_alive():
+        print("\nEs tu turno:")
+        action = input("¿Atacar? (s/n): ").lower()
+        if action == 's':
+            player.attack_enemy(enemy)
+            player.use_special_ability(enemy)
+        if enemy.is_alive():
+            enemy.attack_player(player)
+            enemy.use_special_ability(player)
+        time.sleep(1)
+    if player.is_alive():
+        print(f"{player.name} ha derrotado a {enemy.name}.\n")
+    else:
+        print(f"{player.name} ha sido derrotado...\n")
+        sys.exit(0)
+
+def print_dungeon_status(room, player):
+    print(f"\nExplorando la sala: {room.room_type}")
+    print(f"Estado de {player.name} - Salud: {player.health}")
+    print(f"Descripción: {room.description}")
+    player.make_moral_decision()
+
+def game():
+    player = Character(name="Marine Espacial", faction="Imperio", health=100, attack=20, defense=5, accuracy=0.85, intelligence=70, special_ability="Aguante de la Legión", moral_alignment="Neutral")
+    dungeon = generate_dungeon()
+
+    print("Bienvenido al Generador de Mazmorras Aleatorias basado en Warhammer 40k.\n")
+    print(f"Comienzas tu aventura con {player.health} puntos de salud.\n")
+
+    for room in dungeon:
+        print_dungeon_status(room, player)
+        if room.room_type == "combate":
+            enemy = room.enemy
+            combat(player, enemy)
+        elif room.room_type == "evento":
+            room.trigger_event(player)
+        elif room.room_type == "tesoro":
+            print("¡Has encontrado un cofre del tesoro!\n")
+        elif room.room_type == "trampa":
+            room.trigger_event(player)
+
+        if not player.is_alive():
+            break
+
+    if player.is_alive():
+        print("¡Has superado la mazmora! ¡Victoria!\n")
+    else:
+        print("Has fallado en tu misión...\n")
+
+if __name__ == "__main__":
+    game()
