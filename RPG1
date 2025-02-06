@@ -12,7 +12,7 @@ class Personaje:
         self.inventario = []
         self.nivel = 1
         self.experiencia = 0
-        self.casa = 0  # Nivel de la casa (0 = no tiene casa)
+        self.casa = 0
         self.armas = []
         self.armaduras = []
         self.puntos_de_vida = vida
