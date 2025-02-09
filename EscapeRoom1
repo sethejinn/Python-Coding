@@ -1,0 +1,226 @@
+import random
+import time
+
+class Item:
+    def __init__(self, nombre, descripcion, usar=None, interaccion=None):
+        self.nombre = nombre
+        self.descripcion = descripcion
+        self.usar = usar
+        self.interaccion = interaccion
+
+    def __str__(self):
+        return f"{self.nombre}: {self.descripcion}"
+
+class Habitacion:
+    def __init__(self, nombre, descripcion, objetos=None, acertijo=None, siguiente_habitacion=None, cerrada=False, enemigo=None):
+        self.nombre = nombre
+        self.descripcion = descripcion
+        self.objetos = objetos if objetos else []
+        self.acertijo = acertijo
+        self.siguiente_habitacion = siguiente_habitacion
+        self.cerrada = cerrada
+        self.enemigo = enemigo
+
+    def describir(self):
+        print(f"\n{self.nombre}")
+        print(self.descripcion)
+        if self.objetos:
+            print("Puedes ver los siguientes objetos:")
+            for obj in self.objetos:
+                print(f"- {obj}")
+        if self.acertijo:
+            print(f"Un acertijo bloquea tu camino: {self.acertijo['descripcion']}")
+        if self.cerrada:
+            print("La puerta está cerrada. Necesitas una llave para abrirla.")
+        if self.enemigo:
+            print(f"¡Un {self.enemigo.nombre} bloquea el paso!")
+
+class Acertijo:
+    def __init__(self, descripcion, respuesta, recompensa=None):
+        self.descripcion = descripcion
+        self.respuesta = respuesta
+        self.recompensa = recompensa
+
+    def resolver(self, respuesta):
+        return respuesta.strip().lower() == self.respuesta.lower()
+
+class Enemigo:
+    def __init__(self, nombre, salud, dano, objeto_recompensa=None):
+        self.nombre = nombre
+        self.salud = salud
+        self.dano = dano
+        self.objeto_recompensa = objeto_recompensa
+
+    def atacar(self):
+        return random.randint(1, self.dano)
+
+    def recibir_dano(self, dano):
+        self.salud -= dano
+        if self.salud <= 0:
+            print(f"¡Has derrotado a {self.nombre}!")
+            return True
+        return False
+
+class Personaje:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.salud = 100
+        self.fuerza = 10
+        self.inteligencia = 10
+        self.objetos = []
+        self.enemigos_derrotados = 0
+
+    def usar_objeto(self, objeto):
+        print(f"Usas el objeto {objeto.nombre}. {objeto.usar}")
+        if objeto.nombre == "Poción":
+            self.salud = min(self.salud + 25, 100)
+
+    def atacar(self, enemigo):
+        dano = random.randint(self.fuerza, self.fuerza + 10)
+        print(f"¡Atacas a {enemigo.nombre} y le haces {dano} puntos de daño!")
+        return dano
+
+class Juego:
+    def __init__(self, jugador):
+        self.jugador = jugador
+        self.habitaciones = self.crear_habitaciones()
+        self.habitacion_actual = self.habitaciones['pasillo']
+        self.fin_juego = False
+        self.tiempo_restante = 300  # 5 minutos para escapar
+
+    def crear_habitaciones(self):
+        llave = Item("Llave", "Una pequeña llave oxidada que podría abrir algo.", usar="Úsala en la puerta cerrada.")
+        libro = Item("Libro", "Un libro polvoriento con un símbolo extraño en la portada.", usar="Podría contener pistas importantes.")
+        espada = Item("Espada", "Una espada afilada con un intrincado mango.", usar="Puede ser útil en combates con criaturas.")
+        pocion = Item("Poción", "Una poción curativa que restaura algo de salud.", usar="Bébela para recuperar vida.")
+        mapa = Item("Mapa", "Un mapa antiguo que muestra varias ubicaciones de la habitación y pasillos.", usar="Te ayudará a orientarte.")
+
+        acertijo_1 = Acertijo("No estoy vivo, pero crezco; no tengo pulmones, pero necesito aire. ¿Qué soy?", "fuego", recompensa=llave)
+        acertijo_2 = Acertijo("¿Qué tiene teclas pero no puede abrir cerraduras?", "piano", recompensa=libro)
+
+        enemigo_1 = Enemigo("Gárgola", 50, 15, espada)
+
+        habitacion1 = Habitacion("Biblioteca", "Una habitación llena de libros antiguos y polvorientos.", objetos=[libro], acertijo=acertijo_1)
+        habitacion2 = Habitacion("Pasillo Oscuro", "Un pasillo oscuro con una puerta cerrada al final.", objetos=[llave], acertijo=None, siguiente_habitacion=habitacion1, cerrada=True)
+        habitacion3 = Habitacion("Estudio", "Un pequeño estudio con un escritorio y papeles esparcidos por el suelo.", objetos=[mapa], acertijo=acertijo_2)
+        habitacion4 = Habitacion("Sótano", "Un sótano frío y oscuro. Un enemigo te bloquea el paso.", objetos=[pocion], enemigo=enemigo_1)
+
+        habitacion1.siguiente_habitacion = habitacion2
+        habitacion2.siguiente_habitacion = habitacion3
+        habitacion3.siguiente_habitacion = habitacion4
+        return {
+            'pasillo': habitacion2,
+            'biblioteca': habitacion1,
+            'estudio': habitacion3,
+            'sotano': habitacion4
+        }
+
+    def mostrar_estado(self):
+        print(f"\nSalud: {self.jugador.salud} | Fuerza: {self.jugador.fuerza} | Inteligencia: {self.jugador.inteligencia}")
+        print(f"Tiempo restante: {self.tiempo_restante} segundos.")
+        if self.tiempo_restante <= 0:
+            print("¡El tiempo ha llegado a su fin! Has perdido.")
+            self.fin_juego = True
+
+    def gestionar_tiempo(self):
+        time.sleep(1)
+        self.tiempo_restante -= 1
+
+    def resolver_acertijo(self, acertijo):
+        print(f"\n{acertijo.descripcion}")
+        respuesta = input("Resuelve el acertijo: ").strip().lower()
+        if acertijo.resolver(respuesta):
+            print("¡Acertaste!")
+            if acertijo.recompensa:
+                self.jugador.objetos.append(acertijo.recompensa)
+                print(f"Recibiste un objeto: {acertijo.recompensa.nombre}")
+            return True
+        else:
+            print("Respuesta incorrecta. Intenta de nuevo.")
+            return False
+
+    def combate(self, enemigo):
+        print(f"\n¡Un combate contra {enemigo.nombre} ha comenzado!")
+        while enemigo.salud > 0 and self.jugador.salud > 0:
+            print(f"\n{enemigo.nombre} tiene {enemigo.salud} de salud.")
+            print(f"Tú tienes {self.jugador.salud} de salud.")
+            accion = input("¿Qué deseas hacer? (atacar / usar objeto / huir): ").strip().lower()
+            if accion == "atacar":
+                dano = self.jugador.atacar(enemigo)
+                if enemigo.recibir_dano(dano):
+                    self.jugador.enemigos_derrotados += 1
+                    return
+            elif accion == "usar objeto":
+                self.jugador.usar_objeto(self.jugador.objetos[0])  # Usar el primer objeto
+            elif accion == "huir":
+                print("¡Has huido del combate!")
+                return
+
+            if enemigo.salud > 0:
+                dano = enemigo.atacar()
+                self.jugador.salud -= dano
+                print(f"{enemigo.nombre} te ha atacado y te hizo {dano} de daño.")
+            if self.jugador.salud <= 0:
+                print("¡Has sido derrotado!")
+                self.fin_juego = True
+
+    def juego_loop(self):
+        print("¡Bienvenido al Escape Room!")
+        while not self.fin_juego:
+            self.mostrar_estado()
+            self.habitacion_actual.describir()
+            accion = input("\n¿Qué te gustaría hacer? (escribe 'mirar', 'tomar [objeto]', 'usar [objeto]', 'resolver', 'combar', 'salir'): ").strip().lower()
+
+            if accion == 'mirar':
+                self.habitacion_actual.describir()
+
+            elif accion.startswith('tomar'):
+                nombre_objeto = accion.split(" ", 1)[1].lower()
+                objeto_encontrado = False
+                for item in self.habitacion_actual.objetos:
+                    if item.nombre.lower() == nombre_objeto:
+                        self.jugador.objetos.append(item)
+                        self.habitacion_actual.objetos.remove(item)
+                        print(f"Has tomado el objeto: {item.nombre}.")
+                        objeto_encontrado = True
+                        break
+                if not objeto_encontrado:
+                    print("No hay tal objeto aquí.")
+
+            elif accion.startswith('usar'):
+                nombre_objeto = accion.split(" ", 1)[1].lower()
+                objeto_usado = False
+                for item in self.jugador.objetos:
+                    if item.nombre.lower() == nombre_objeto:
+                        self.jugador.usar_objeto(item)
+                        objeto_usado = True
+                        break
+                if not objeto_usado:
+                    print("No tienes ese objeto en tu inventario.")
+
+            elif accion == 'resolver' and self.habitacion_actual.acertijo:
+                if self.resolver_acertijo(self.habitacion_actual.acertijo):
+                    if self.habitacion_actual.siguiente_habitacion:
+                        self.habitacion_actual = self.habitacion_actual.siguiente_habitacion
+                    else:
+                        print("¡Has escapado de la habitación!")
+                        self.fin_juego = True
+                else:
+                    print("Intenta de nuevo.")
+
+            elif accion == 'combar' and self.habitacion_actual.enemigo:
+                self.combate(self.habitacion_actual.enemigo)
+
+            elif accion == 'salir':
+                print("Has decidido salir del juego. ¡Hasta luego!")
+                self.fin_juego = True
+
+            else:
+                print("Acción no válida. Por favor, intenta de nuevo.")
+            
+            self.gestionar_tiempo()
+
+if __name__ == "__main__":
+    jugador = Personaje("Explorador")
+    juego = Juego(jugador)
+    juego.juego_loop()
