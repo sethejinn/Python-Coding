@@ -122,7 +122,7 @@ class Player:
             self.credits += hours * 5
             self.energy -= hours * 10
 
-player = Player("Hanna")
+player = Player("Danny")
 player.add_task("Study Python", "2025-02-20", 15, 20)
 player.complete_task("Study Python")
 player.buy_pet("Cat")
