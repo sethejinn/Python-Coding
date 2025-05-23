@@ -41,7 +41,7 @@ def obtener_hora():
             print("Formato de hora inválido. ")
 
 def main():
-    print("¡Bienvenida al Organizador!")
+    print("¡Bienvenido al Organizador!")
     while True:
         print("1. Introduce día y hora")
         print("2. Finalizar")
